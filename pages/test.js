@@ -7,6 +7,7 @@ const Test = (props) => {
   const [callConnected, setCallConnected] = useState(false);
   const [phone, setPhone] = useState(null);
 
+  // AUTH
   const makeToken = async () => {
     const url = "http://localhost:6001/api/v1/auto-dialer/voice/generate-token";
     const data = {
@@ -129,9 +130,7 @@ const Test = (props) => {
       )}
 
       {callStatus == "Ready" && (
-        <button onClick={() => callCustomer("+16062693492")}>
-          Call Member
-        </button>
+        <button onClick={() => callCustomer("+YO PHONE")}>Call Member</button>
       )}
 
       {token && callConnected && (
