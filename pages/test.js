@@ -8,7 +8,7 @@ const Test = (props) => {
   const [phone, setPhone] = useState(null);
 
   const makeToken = async () => {
-    const url = "http://localhost:6001/api/v1/test-token";
+    const url = "http://localhost:6001/api/v1/auto-dialer/voice/generate-token";
     const data = {
       memberId: "asdfqwerty",
     };
