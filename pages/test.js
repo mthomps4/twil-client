@@ -3,7 +3,8 @@ import { useState } from "react";
 
 const Test = (props) => {
   const [token, setToken] = useState(null);
-  const [callStatus, setCallStatus] = useState("Connecting to Twilio...");
+  const [callStatus, setCallStatus] = useState("Please setup device.");
+  const [callConnected, setCallConnected] = useState(false);
   const [phone, setPhone] = useState(null);
 
   const makeToken = async () => {
@@ -44,8 +45,13 @@ const Test = (props) => {
       setCallStatus("Ready");
     });
 
+    device.on("warning", function (warningName, warningData) {
+      console.warn({ warningName, warningData });
+      setCallStatus("Warning: " + warningName);
+    });
+
     device.on("error", function (error) {
-      console.log("Twilio.Device Error: " + error.message);
+      console.error("Twilio.Device Error: " + error.message);
       setCallStatus("ERROR: " + error.message);
     });
 
@@ -62,6 +68,7 @@ const Test = (props) => {
         message: { phoneNumber },
       } = conn;
 
+      setCallConnected(true);
       if (phoneNumber) {
         setCallStatus("Connected to " + phoneNumber);
       } else {
@@ -76,6 +83,7 @@ const Test = (props) => {
       // callSupportButton.prop("disabled", false);
 
       setCallStatus("Ready");
+      setCallConnected(false);
     });
 
     device.on("incoming", function (conn) {
@@ -100,8 +108,7 @@ const Test = (props) => {
   const callCustomer = (phoneNumber) => {
     if (!phone) return;
     setCallStatus("Calling " + phoneNumber + "...");
-
-    const params = { to: phoneNumber };
+    const params = { phoneNumber: phoneNumber };
 
     phone.connect(params);
   };
@@ -115,11 +122,11 @@ const Test = (props) => {
     <div style={{ margin: "2rem" }}>
       <h1>Test</h1>
 
-      <button onClick={makeToken}>Make Token</button>
+      {!token && <button onClick={makeToken}>Generate Token</button>}
 
-      <p>Call Status: {callStatus} </p>
-
-      {token && <button onClick={() => setupDevice()}>Reset Device</button>}
+      {token && callStatus !== "Ready" && (
+        <button onClick={() => setupDevice()}>Setup Device</button>
+      )}
 
       {callStatus == "Ready" && (
         <button onClick={() => callCustomer("+16062693492")}>
@@ -127,8 +134,14 @@ const Test = (props) => {
         </button>
       )}
 
-      {callStatus !== "Ready" && (
+      {token && callConnected && (
         <button onClick={() => disconnect()}>Hang Up!</button>
+      )}
+
+      {token && (
+        <div>
+          <p>Call Status: {callStatus} </p>
+        </div>
       )}
     </div>
   );
